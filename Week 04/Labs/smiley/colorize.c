@@ -1,0 +1,63 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "helpers.h"
+
+int main (int argc, char *argv[]) {
+    if (argc != 3) { printf("Usage: colorize infile outfile\n"); return 1; }
+
+    char *infile = argv[1];
+    char *outfile = argv[2];
+
+    FILE *inptr = fopen(infile, "r");
+    if (inptr == NULL) { printf("Could not open %s.\n", infile); return 4; }
+
+    FILE *outptr = fopen(outfile, "w");
+    if (outptr == NULL) { fclose(inptr); printf("Could not create %s.\n", outfile); return 5; }
+
+    BITMAPFILEHEADER bf;
+    fread(&bf, sizeof(BITMAPFILEHEADER), 1, inptr);
+
+    BITMAPINFOHEADER bi;
+    fread(&bi, sizeof(BITMAPINFOHEADER), 1, inptr);
+
+    if (bf.bfType != 0x4d42 || bf.bfOffBits != 54 || bi.biSize != 40 ||
+        bi.biBitCount != 24 || bi.biCompression != 0) {
+        fclose(outptr); fclose(inptr);
+        printf("Unsupported file format.\n");
+
+        return 6;
+    }
+
+    int height = abs(bi.biHeight);
+    int width = bi.biWidth;
+
+    RGBTRIPLE (*image)[width] = calloc(height, width * sizeof(RGBTRIPLE));
+    if (image == NULL) {
+        printf("Not enough memory to store image.\n");
+        fclose(outptr); fclose(inptr);
+
+        return 7;
+    }
+
+    int padding =  (4 - (width * sizeof(RGBTRIPLE)) % 4) % 4;
+    for (int i = 0; i < height; i++) {
+        fread(image[i], sizeof(RGBTRIPLE), width, inptr);
+        fseek(inptr, padding, SEEK_CUR);
+    }
+
+    colorize(height, width, image);
+    fwrite(&bf, sizeof(BITMAPFILEHEADER), 1, outptr);
+    fwrite(&bi, sizeof(BITMAPINFOHEADER), 1, outptr);
+
+    for (int i = 0; i < height; i++) {
+        fwrite(image[i], sizeof(RGBTRIPLE), width, outptr);
+        for (int k = 0; k < padding; k++) fputc(0x00, outptr);
+    }
+
+    free(image);
+
+    fclose(inptr);
+    fclose(outptr);
+
+    return 0;
+}
