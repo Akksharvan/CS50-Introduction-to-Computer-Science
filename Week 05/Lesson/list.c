@@ -35,7 +35,6 @@ int main (void) {
     tree -> right = n;
 
     print_tree(tree);
-
     free_tree(tree);
     return 0;
 }
