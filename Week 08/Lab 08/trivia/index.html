@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap" rel="stylesheet">
+        <link href="styles.css" rel="stylesheet">
+        <title>Trivia!</title>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                let right = document.querySelector(".right");
+                right.addEventListener("click", function(event) { right.style.backgroundColor = 'green'; document.querySelector("#result1").innerHTML = 'Correct!'; });
+
+                let wrong = document.querySelectorAll(".wrong");
+                for (let i = 0; i < wrong.length; i++) {
+                    wrong[i].addEventListener('click', function(event) { wrong[i].style.backgroundColor = 'red'; document.querySelector("#result1").innerHTML = 'Incorrect'; });
+                }
+
+                document.querySelector("#submit").addEventListener('click', function() {
+                    let input = document.querySelector("input");
+                    if(input.value == "Massachusetts"){
+                        input.style.backgroundColor = "green";
+                        document.querySelector("#result2").innerHTML = "Correct";
+                    } else {
+                        input.style.backgroundColor = "red";
+                        document.querySelector("#result2").innerHTML = "Incorrect";
+                    }
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <div class="header">
+            <h1>Trivia!</h1>
+        </div>
+
+        <div class="container">
+            <div class="section">
+                <h2>Part 1: Multiple Choice </h2>
+                <hr>
+                <h3> What year was Harvard founded? </h3>
+                <button class = "right">1636</button>
+                <button class = "wrong">1605</button>
+                <button class = "wrong">1732</button>
+                <button class = "wrong">1696</button>
+                <p id = "result1"></p>
+            </div>
+
+            <div class="section">
+                <h2>Part 2: Free Response</h2>
+                <hr>
+                <h3> In which state is Harvard located? </h3>
+                <input type = 'text'></input>
+                <button id = "submit">Submit</button>
+                <p id = "result2"></p>
+            </div>
+        </div>
+    </body>
+</html>
